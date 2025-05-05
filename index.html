@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Email Formatter AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+<style>
+
+    body {
+
+      font-family: 'Inter', sans-serif;
+
+      background-color: #343541;
+
+      color: #ececf1;
+
+      margin: 0;
+
+      padding: 0;
+
+      overflow-x: hidden;
+
+    }
+
+    #tsparticles {
+
+      position: fixed;
+
+      width: 100%;
+
+      height: 100%;
+
+      z-index: -1;
+
+      top: 0;
+
+      left: 0;
+
+    }
+
+    .container {
+
+      background-color: #40414f;
+
+      padding: 20px;
+
+      margin: 40px auto;
+
+      border-radius: 10px;
+
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+      width: 100%;
+
+      max-width: 720px;
+
+      z-index: 1;
+
+      position: relative;
+
+    }
+
+    textarea, select, button {
+
+      width: 100%;
+
+      padding: 10px;
+
+      margin-top: 10px;
+
+      border-radius: 8px;
+
+      border: none;
+
+      font-size: 16px;
+
+      box-sizing: border-box;
+
+    }
+
+    textarea {
+
+      min-height: 120px;
+
+      resize: vertical;
+
+      background-color: #343541;
+
+      color: #ececf1;
+
+    }
+
+    button {
+
+      background-color: #10a37f;
+
+      color: white;
+
+      font-weight: 600;
+
+      cursor: pointer;
+
+      transition: background 0.2s ease;
+
+    }
+
+    button:hover {
+
+      background-color: #0c7d63;
+
+    }
+
+    #output {
+
+      background-color: #343541;
+
+      margin-top: 15px;
+
+      padding: 15px;
+
+      border-radius: 8px;
+
+      min-height: 100px;
+
+      white-space: pre-wrap;
+
+      border: 1px solid #555;
+
+    }
+
+    label {
+
+      font-weight: 500;
+
+    }
+
+    h1 {
+
+      text-align: center;
+
+      font-weight: 600;
+
+      margin-top: 0;
+
+    }
+</style>
+</head>
+<body>
+<div id="tsparticles"></div>
+<div class="container">
+<h1>Email Formatter AI</h1>
+<label for="tone">Tone:</label>
+<select id="tone">
+<option value="friendly and direct">Friendly & Direct</option>
+<option value="neutral and professional">Neutral & Professional</option>
+<option value="casual">Casual</option>
+</select>
+<label for="input">Your rough email or bullet points:</label>
+<textarea id="input" placeholder="Type your rough ideas..."></textarea>
+<button onclick="formatEmail()">Format Email ✨</button>
+<div id="output">Your formatted email will appear here...</div>
+</div>
+<script>
+
+    const API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta";
+
+    const API_TOKEN = "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";
+
+    async function formatEmail() {
+
+      const input = document.getElementById("input").value;
+
+      const tone = document.getElementById("tone").value;
+
+      const prompt = `Rewrite the following into a clear, ${tone} email:\n\n${input}`;
+
+      document.getElementById("output").innerText = "Formatting...";
+
+      try {
+
+        const response = await fetch(API_URL, {
+
+          method: "POST",
+
+          headers: {
+
+            Authorization: `Bearer ${API_TOKEN}`,
+
+            "Content-Type": "application/json"
+
+          },
+
+          body: JSON.stringify({ inputs: prompt })
+
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+
+          document.getElementById("output").innerText = `Error: ${data.error}`;
+
+        } else {
+
+          document.getElementById("output").innerText = data[0]?.generated_text || "No output received.";
+
+        }
+
+      } catch (err) {
+
+        document.getElementById("output").innerText = "API error: " + err.message;
+
+      }
+
+    }
+
+    tsParticles.load("tsparticles", {
+
+      fullScreen: { enable: false },
+
+      background: { color: "#343541" },
+
+      particles: {
+
+        number: { value: 50 },
+
+        color: { value: "#10a37f" },
+
+        shape: { type: "circle" },
+
+        opacity: { value: 0.5 },
+
+        size: { value: 3 },
+
+        move: {
+
+          enable: true,
+
+          speed: 1,
+
+          direction: "none",
+
+          random: true,
+
+          straight: false,
+
+          outModes: "out"
+
+        }
+
+      }
+
+    });
+</script>
+</body>
+</html>
+ 
