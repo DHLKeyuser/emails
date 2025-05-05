@@ -114,7 +114,7 @@
 
     #output {
 
-      background-color: #343541;
+      background-color: #3b3b4a;
 
       margin-top: 15px;
 
@@ -122,11 +122,13 @@
 
       border-radius: 8px;
 
-      min-height: 100px;
-
       white-space: pre-wrap;
 
+      min-height: 100px;
+
       border: 1px solid #555;
+
+      font-family: 'Inter', sans-serif;
 
     }
 
@@ -145,6 +147,26 @@
       margin-top: 0;
 
     }
+
+    .typing {
+
+      font-style: italic;
+
+      color: #aaa;
+
+      animation: pulse 1s infinite;
+
+    }
+
+    @keyframes pulse {
+
+      0% { opacity: 0.4; }
+
+      50% { opacity: 1; }
+
+      100% { opacity: 0.4; }
+
+    }
 </style>
 </head>
 <body>
@@ -153,30 +175,42 @@
 <h1>Email Formatter AI</h1>
 <label for="tone">Tone:</label>
 <select id="tone">
-<option value="friendly and direct">Friendly & Direct</option>
-<option value="neutral and professional">Neutral & Professional</option>
-<option value="casual">Casual</option>
+<option value="natural">Natural (simple, human, direct)</option>
+<option value="professional">Professional (serious, clear, no fluff)</option>
+<option value="friendly">Friendly (chat-style, simple)</option>
 </select>
 <label for="input">Your rough email or bullet points:</label>
 <textarea id="input" placeholder="Type your rough ideas..."></textarea>
 <button onclick="formatEmail()">Format Email ✨</button>
-<div id="output">Your formatted email will appear here...</div>
+<div id="output"></div>
 </div>
 <script>
 
-    const API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta";
+    const API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1";
 
     const API_TOKEN = "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";
 
     async function formatEmail() {
 
-      const input = document.getElementById("input").value;
-
       const tone = document.getElementById("tone").value;
 
-      const prompt = `Rewrite the following into a clear, ${tone} email:\n\n${input}`;
+      const input = document.getElementById("input").value;
 
-      document.getElementById("output").innerText = "Formatting...";
+      const toneInstructions = {
+
+        natural: "Use common words only. Keep it natural, direct, and simple. Avoid fluff.",
+
+        professional: "Use common words. Keep the tone serious, direct, clear, and respectful. Avoid unnecessary complexity.",
+
+        friendly: "Use simple, human, chat-style language. Keep it relaxed, warm, and easy to read."
+
+      };
+
+      const prompt = `Write an email. ${toneInstructions[tone]}\n\nDetails: ${input}`;
+
+      const outputDiv = document.getElementById("output");
+
+      outputDiv.innerHTML = "<div class='typing'>Formatting...</div>";
 
       try {
 
@@ -200,17 +234,21 @@
 
         if (data.error) {
 
-          document.getElementById("output").innerText = `Error: ${data.error}`;
+          outputDiv.innerText = `Error: ${data.error}`;
 
         } else {
 
-          document.getElementById("output").innerText = data[0]?.generated_text || "No output received.";
+          let text = data[0]?.generated_text || "No output received.";
+
+          text = text.replace(/^.*?\n{2,}/s, '').trim();
+
+          outputDiv.innerText = text;
 
         }
 
       } catch (err) {
 
-        document.getElementById("output").innerText = "API error: " + err.message;
+        outputDiv.innerText = "API error: " + err.message;
 
       }
 
